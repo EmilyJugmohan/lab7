@@ -36,3 +36,6 @@ async def unauthorized_redirect_handler(request: Request, exc: Exception):
 
 if __name__ == "__main__":
     uvicorn.run("app.main:app", host=get_settings().app_host, port=get_settings().app_port, reload=get_settings().env.lower()!="production")
+
+
+#this is a test to see if it works with render
