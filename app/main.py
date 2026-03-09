@@ -5,6 +5,9 @@ from starlette.middleware.sessions import SessionMiddleware
 from app.routers import main_router, templates, static_files
 from app.settings import get_settings
 from contextlib import asynccontextmanager
+from fastapi.staticfiles import StaticFiles
+from app.auth import auth_router
+from app.todos import router as todos_router
 
 
 @asynccontextmanager
@@ -22,8 +25,13 @@ app = FastAPI(middleware=[
 lifespan=lifespan
 )
 
+
 app.include_router(main_router)
 app.mount("/static", static_files, name="static")
+
+app.include_router(auth_router)
+app.include_router(todos_router)
+
 
 @app.exception_handler(status.HTTP_401_UNAUTHORIZED)
 async def unauthorized_redirect_handler(request: Request, exc: Exception):
@@ -39,3 +47,5 @@ if __name__ == "__main__":
 
 
 #this is a test to see if it works with render
+
+#another test to see if it works with render 8th march todo update
