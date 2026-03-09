@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Todos</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>My Todos</h1>
+    <form id="add-todo-form">
+        <input type="text" id="new-todo" placeholder="New Todo">
+        <button type="submit">Add</button>
+    </form>
+    <ul id="todo-list"></ul>
+
+    <script>
+        async function loadTodos() {
+            const response = await fetch('/todos');
+            const todos = await response.json();
+            const list = document.getElementById('todo-list');
+            list.innerHTML = '';
+            todos.forEach(todo => {
+                const li = document.createElement('li');
+                li.textContent = todo.title + (todo.completed ? ' ✅' : '');
+                li.onclick = async () => {
+                    await fetch('/todos/' + todo.id + '/toggle', { method: 'POST' });
+                    loadTodos();
+                }
+                list.appendChild(li);
+            });
+        }
+
+        document.getElementById('add-todo-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('new-todo').value;
+            await fetch('/todos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title })
+            });
+            document.getElementById('new-todo').value = '';
+            loadTodos();
+        }
+
+        window.onload = loadTodos;
+    </script>
+</body>
+</html>
