@@ -42,3 +42,7 @@ def toggle_todo(todo_id: int, db: SessionDep, user: AuthDep = Depends()):
 def todos_ui(request: Request, db: SessionDep, user: AuthDep = Depends()):
     todos = db.exec(select(TodoModel).where(TodoModel.user_id == user.id)).all()
     return templates.TemplateResponse("todos.html", {"request": request, "todos": todos})
+
+
+
+#writing so i can test the commit and push functionality of git, ignore this code
