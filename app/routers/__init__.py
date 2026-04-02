@@ -18,3 +18,6 @@ main_router.include_router(index_router)
 
 from .app import app_router
 main_router.include_router(app_router)
+
+from .todos import router as todos_router
+main_router.include_router(todos_router)

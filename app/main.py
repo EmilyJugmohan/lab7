@@ -2,50 +2,43 @@ import uvicorn
 from fastapi import FastAPI, Request, status
 from starlette.middleware import Middleware
 from starlette.middleware.sessions import SessionMiddleware
+from contextlib import asynccontextmanager
+
 from app.routers import main_router, templates, static_files
 from app.settings import get_settings
-from contextlib import asynccontextmanager
-from fastapi.staticfiles import StaticFiles
-from app.auth import auth_router
-from app.todos import router as todos_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from app.database import create_db_and_tables
-
     create_db_and_tables()
     yield
 
 
-
-app = FastAPI(middleware=[
-    Middleware(SessionMiddleware, secret_key=get_settings().secret_key)
-],
-lifespan=lifespan
+app = FastAPI(
+    middleware=[Middleware(SessionMiddleware, secret_key=get_settings().secret_key)],
+    lifespan=lifespan,
 )
 
-
+# This already includes auth/index/app (from app/routers/__init__.py)
 app.include_router(main_router)
-app.mount("/static", static_files, name="static")
 
-app.include_router(auth_router)
-app.include_router(todos_router)
+# Static
+app.mount("/static", static_files, name="static")
 
 
 @app.exception_handler(status.HTTP_401_UNAUTHORIZED)
 async def unauthorized_redirect_handler(request: Request, exc: Exception):
     return templates.TemplateResponse(
-        request=request, 
+        request=request,
         name="401.html",
     )
 
 
-
 if __name__ == "__main__":
-    uvicorn.run("app.main:app", host=get_settings().app_host, port=get_settings().app_port, reload=get_settings().env.lower()!="production")
-
-
-#this is a test to see if it works with render
-
-#another test to see if it works with render 8th march todo update
+    uvicorn.run(
+        "app.main:app",
+        host=get_settings().app_host,
+        port=get_settings().app_port,
+        reload=get_settings().env.lower() != "production",
+    )
